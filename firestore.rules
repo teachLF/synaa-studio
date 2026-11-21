@@ -1,0 +1,194 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net (Default Deny Catch-All)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Hardened Global Helpers
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isVerifiedOwner(userId) {
+      return isVerifiedUser() && request.auth.uid == userId;
+    }
+
+    function isValidTimestampOnCreate(data) {
+      return data.createdAt is timestamp && data.createdAt == request.time;
+    }
+
+    function isValidProfile(data, userId) {
+      return data.keys().hasAll(['uid', 'email', 'providerId', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'displayName', 'email', 'photoURL', 'providerId', 'createdAt', 'updatedAt'])
+        && isValidId(data.uid)
+        && data.uid == userId
+        && data.uid == request.auth.uid
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 200
+        && data.providerId is string && data.providerId.size() >= 1 && data.providerId.size() <= 64
+        && (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 120))
+        && (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 512))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidProject(data, userId, projectId) {
+      return data.keys().hasAll(['id', 'ownerId', 'name', 'aspectRatio', 'duration', 'tracks', 'clips', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'ownerId', 'name', 'aspectRatio', 'duration', 'tracks', 'clips', 'thumbnail', 'createdAt', 'updatedAt'])
+        && isValidId(data.id)
+        && data.id == projectId
+        && isValidId(data.ownerId)
+        && data.ownerId == userId
+        && data.ownerId == request.auth.uid
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 120
+        && data.aspectRatio in ['16:9', '9:16', '1:1', '4:5', '21:9']
+        && data.duration is number && data.duration >= 0 && data.duration <= 86400
+        && data.tracks is list && data.tracks.size() >= 1 && data.tracks.size() <= 16
+        && data.tracks[0] is map
+        && data.clips is list && data.clips.size() <= 200
+        && (data.clips.size() == 0 || data.clips[0] is map)
+        && (!('thumbnail' in data) || (data.thumbnail is string && data.thumbnail.size() <= 180000))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidMediaAsset(data, userId, projectId, mediaId) {
+      return data.keys().hasAll(['id', 'ownerId', 'projectId', 'name', 'kind', 'originalExt', 'mimeType', 'duration', 'width', 'height', 'chunkCount', 'sizeBytes', 'createdAt'])
+        && data.keys().hasOnly(['id', 'ownerId', 'projectId', 'name', 'kind', 'originalExt', 'mimeType', 'duration', 'width', 'height', 'thumbnail', 'waveform', 'inlineDataUrl', 'storageUrl', 'chunkCount', 'sizeBytes', 'createdAt'])
+        && isValidId(data.id)
+        && data.id == mediaId
+        && isValidId(data.ownerId)
+        && data.ownerId == userId
+        && data.ownerId == request.auth.uid
+        && isValidId(data.projectId)
+        && data.projectId == projectId
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 200
+        && data.kind in ['video', 'image', 'audio']
+        && data.originalExt is string && data.originalExt.size() <= 16
+        && data.mimeType is string && data.mimeType.size() <= 120
+        && data.duration is number && data.duration >= 0 && data.duration <= 86400
+        && data.width is number && data.width >= 0 && data.width <= 16384
+        && data.height is number && data.height >= 0 && data.height <= 16384
+        && data.chunkCount is number && data.chunkCount >= 0 && data.chunkCount <= 40
+        && data.sizeBytes is number && data.sizeBytes >= 0 && data.sizeBytes <= 104857600
+        && (!('thumbnail' in data) || (data.thumbnail is string && data.thumbnail.size() <= 200000))
+        && (!('waveform' in data) || (data.waveform is list && data.waveform.size() <= 256 && (data.waveform.size() == 0 || data.waveform[0] is number)))
+        && (!('inlineDataUrl' in data) || (data.inlineDataUrl is string && data.inlineDataUrl.size() <= 350000))
+        && (!('storageUrl' in data) || (data.storageUrl is string && data.storageUrl.size() <= 1024))
+        && data.createdAt is timestamp;
+    }
+
+    function isValidMediaChunk(data, userId, projectId, mediaId) {
+      return data.keys().hasAll(['ownerId', 'projectId', 'mediaId', 'index', 'data'])
+        && data.keys().hasOnly(['ownerId', 'projectId', 'mediaId', 'index', 'data'])
+        && isValidId(data.ownerId)
+        && data.ownerId == userId
+        && data.ownerId == request.auth.uid
+        && isValidId(data.projectId)
+        && data.projectId == projectId
+        && isValidId(data.mediaId)
+        && data.mediaId == mediaId
+        && data.index is number && data.index >= 0 && data.index < 40
+        && data.data is string && data.data.size() >= 1 && data.data.size() <= 700000;
+    }
+
+    // 3. Isolated Private User Profile (PII Protection)
+    match /users/{userId}/private/profile {
+      allow get: if isValidId(userId) && isOwner(userId);
+      allow create: if isValidId(userId)
+        && isVerifiedOwner(userId)
+        && isValidProfile(incoming(), userId)
+        && isValidTimestampOnCreate(incoming())
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(userId)
+        && isVerifiedOwner(userId)
+        && isValidProfile(incoming(), userId)
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'email', 'photoURL', 'providerId', 'updatedAt'])
+        );
+      allow delete: if isValidId(userId) && isVerifiedOwner(userId);
+    }
+
+    // 4. User Video Projects
+    match /users/{userId}/projects/{projectId} {
+      allow get: if isValidId(userId) && isValidId(projectId) && isOwner(userId);
+      allow list: if isValidId(userId) && isOwner(userId) && resource.data.ownerId == request.auth.uid;
+      allow create: if isValidId(userId) && isValidId(projectId)
+        && isVerifiedOwner(userId)
+        && isValidProject(incoming(), userId, projectId)
+        && isValidTimestampOnCreate(incoming())
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(userId) && isValidId(projectId)
+        && isVerifiedOwner(userId)
+        && isValidProject(incoming(), userId, projectId)
+        && incoming().id == existing().id
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          incoming().diff(existing()).affectedKeys().hasOnly(['name', 'aspectRatio', 'duration', 'tracks', 'clips', 'thumbnail', 'updatedAt'])
+        );
+      allow delete: if isValidId(userId) && isValidId(projectId) && isVerifiedOwner(userId);
+
+      // 5. Project Media Assets (Master Gate verifies parent project exists)
+      match /media/{mediaId} {
+        allow get: if isValidId(userId) && isValidId(projectId) && isValidId(mediaId) && isOwner(userId);
+        allow list: if isValidId(userId) && isValidId(projectId) && isOwner(userId) && resource.data.ownerId == request.auth.uid;
+        allow create: if isValidId(userId) && isValidId(projectId) && isValidId(mediaId)
+          && isVerifiedOwner(userId)
+          && isValidMediaAsset(incoming(), userId, projectId, mediaId)
+          && isValidTimestampOnCreate(incoming())
+          && exists(/databases/$(database)/documents/users/$(userId)/projects/$(projectId))
+          && get(/databases/$(database)/documents/users/$(userId)/projects/$(projectId)).data.ownerId == request.auth.uid;
+        allow update: if isValidId(userId) && isValidId(projectId) && isValidId(mediaId)
+          && isVerifiedOwner(userId)
+          && isValidMediaAsset(incoming(), userId, projectId, mediaId)
+          && incoming().id == existing().id
+          && incoming().ownerId == existing().ownerId
+          && incoming().projectId == existing().projectId
+          && incoming().createdAt == existing().createdAt
+          && (
+            incoming().diff(existing()).affectedKeys().hasOnly(['name', 'duration', 'width', 'height', 'thumbnail', 'waveform', 'inlineDataUrl', 'storageUrl', 'chunkCount', 'sizeBytes'])
+          );
+        allow delete: if isValidId(userId) && isValidId(projectId) && isValidId(mediaId) && isVerifiedOwner(userId);
+
+        // 6. Chunked Media Payloads (Master Gate verifies parent media exists)
+        match /chunks/{chunkId} {
+          allow get: if isValidId(userId) && isValidId(projectId) && isValidId(mediaId) && isValidId(chunkId) && isOwner(userId);
+          allow list: if isValidId(userId) && isValidId(projectId) && isValidId(mediaId) && isOwner(userId) && resource.data.ownerId == request.auth.uid;
+          allow create: if isValidId(userId) && isValidId(projectId) && isValidId(mediaId) && isValidId(chunkId)
+            && isVerifiedOwner(userId)
+            && isValidMediaChunk(incoming(), userId, projectId, mediaId)
+            && exists(/databases/$(database)/documents/users/$(userId)/projects/$(projectId)/media/$(mediaId))
+            && get(/databases/$(database)/documents/users/$(userId)/projects/$(projectId)/media/$(mediaId)).data.ownerId == request.auth.uid;
+          allow delete: if isValidId(userId) && isValidId(projectId) && isValidId(mediaId) && isValidId(chunkId) && isVerifiedOwner(userId);
+        }
+      }
+    }
+  }
+}

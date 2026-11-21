@@ -1,0 +1,72 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  /* Arabic-friendly system stacks (Google Fonts fetch is unavailable offline
+     and causes build failures, so we use system fonts instead). */
+  :root {
+    --font-display: 'Segoe UI Arabic', 'Cairo', 'Tahoma', 'Segoe UI', system-ui, sans-serif;
+    --font-sans: 'IBM Plex Sans Arabic', 'Segoe UI', 'Arial', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', 'Consolas', monospace;
+  }
+
+  body {
+    font-family: var(--font-sans), system-ui, sans-serif;
+    background-color: #0A0D12;
+    color: #F1F5F9;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+  }
+
+  .font-mono {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Custom studio scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0D1118;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #283142;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3B475E;
+}
+
+/* Range input styling for studio precision */
+input[type="range"].studio-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #1E2532;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type="range"].studio-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #F59E0B;
+  cursor: pointer;
+  border: 2px solid #0A0D12;
+  transition: transform 0.12s ease;
+}
+
+input[type="range"].studio-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}

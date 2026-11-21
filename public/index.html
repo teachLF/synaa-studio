@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SYNAA Studio — تحميل تطبيق Android</title>
+  <meta name="description" content="SYNAA Studio — محرر فيديو 4K احترافي (Android APK). معاينة لحظية، مخطط زمني متعدد الطبقات، إزالة ضوضاء، transitions سينمائية، تصدير 4K." />
+  <style>
+    :root {
+      --bg: #0A0D12;
+      --panel: #10141D;
+      --panel2: #141B26;
+      --border: rgba(255,255,255,0.10);
+      --text: #E2E8F0;
+      --muted: #94A3B8;
+      --amber: #FBBF24;
+      --amber2: #F59E0B;
+      --cyan: #22D3EE;
+      --rose: #FB7185;
+      --violet: #8B5CF6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Segoe UI', 'Tahoma', 'Cairo', system-ui, -apple-system, sans-serif;
+      background: radial-gradient(1200px 800px at 80% -10%, rgba(251,191,36,0.12), transparent 60%),
+                  radial-gradient(900px 700px at -10% 110%, rgba(34,211,238,0.10), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    .container { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+    header {
+      padding: 28px 0 12px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--amber), var(--amber2));
+      display: grid; place-items: center; color: #0A0D12; font-weight: 900; font-size: 20px;
+      box-shadow: 0 0 30px rgba(251,191,36,0.35);
+    }
+    .brand h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .brand span { color: var(--muted); font-size: 12px; font-weight: 500; }
+    .badge {
+      padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04); font-size: 12px; color: var(--muted);
+    }
+
+    .hero { padding: 40px 0 20px; text-align: center; }
+    .hero h2 {
+      font-size: clamp(30px, 5vw, 52px); font-weight: 900; line-height: 1.15;
+      background: linear-gradient(180deg, #FFFFFF, #FBBF24 60%, #F59E0B);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      margin-bottom: 14px;
+    }
+    .hero p { color: var(--muted); font-size: 17px; max-width: 720px; margin: 0 auto 28px; }
+    .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 26px; border-radius: 12px; font-weight: 700; font-size: 15px;
+      text-decoration: none; border: 1px solid var(--border); cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--amber), var(--amber2));
+      color: #0A0D12; border-color: transparent;
+      box-shadow: 0 8px 30px rgba(251,191,36,0.35);
+    }
+    .btn-primary:hover { box-shadow: 0 10px 36px rgba(251,191,36,0.5); transform: translateY(-1px); }
+    .btn-ghost { background: rgba(255,255,255,0.04); color: var(--text); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.08); }
+
+    .meta {
+      display: flex; gap: 18px; justify-content: center; flex-wrap: wrap;
+      color: var(--muted); font-size: 13px; margin-top: 8px;
+    }
+    .meta span { display: inline-flex; align-items: center; gap: 6px; }
+    .meta b { color: var(--text); }
+
+    .features {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px; padding: 36px 0 12px;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+      border: 1px solid var(--border); border-radius: 14px; padding: 18px;
+      transition: border-color .15s ease, transform .15s ease;
+    }
+    .card:hover { border-color: rgba(251,191,36,0.4); transform: translateY(-2px); }
+    .card .icon { font-size: 26px; margin-bottom: 8px; }
+    .card h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .card p { color: var(--muted); font-size: 13px; }
+
+    .section-title {
+      font-size: 20px; font-weight: 800; margin: 30px 0 12px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-title::before {
+      content: ''; width: 4px; height: 20px; border-radius: 2px;
+      background: linear-gradient(180deg, var(--amber), var(--cyan));
+    }
+
+    .specs {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+      padding: 18px; margin: 10px 0 20px;
+    }
+    .specs table { width: 100%; border-collapse: collapse; }
+    .specs td { padding: 8px 6px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .specs td:first-child { color: var(--muted); width: 40%; }
+    .specs tr:last-child td { border-bottom: none; }
+
+    .install {
+      background: linear-gradient(180deg, rgba(34,211,238,0.08), rgba(34,211,238,0.02));
+      border: 1px solid rgba(34,211,238,0.25); border-radius: 14px; padding: 20px; margin: 10px 0 30px;
+    }
+    .install ol { padding-right: 20px; color: var(--muted); font-size: 14px; }
+    .install li { margin: 6px 0; }
+    .install code {
+      background: rgba(0,0,0,0.35); padding: 2px 6px; border-radius: 6px; color: var(--cyan);
+      font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px;
+    }
+
+    footer {
+      border-top: 1px solid var(--border); padding: 22px 0 30px; margin-top: 20px;
+      color: var(--muted); font-size: 12px; text-align: center;
+    }
+    .glow { position: fixed; inset: auto; pointer-events: none; z-index: -1; }
+    .glow.a { top: -120px; right: -120px; width: 360px; height: 360px; background: radial-gradient(circle, rgba(251,191,36,0.18), transparent 70%); }
+    .glow.b { bottom: -160px; left: -160px; width: 420px; height: 420px; background: radial-gradient(circle, rgba(34,211,238,0.15), transparent 70%); }
+
+    @media (max-width: 600px) {
+      .hero h2 { font-size: 28px; }
+      .btn { padding: 12px 20px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow a"></div>
+  <div class="glow b"></div>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">S</div>
+        <div>
+          <h1>SYNAA Studio</h1>
+          <span>محرر فيديو احترافي 4K — Android</span>
+        </div>
+      </div>
+      <div class="badge">v0.1.0 · APK</div>
+    </header>
+
+    <section class="hero">
+      <h2>حوّل أفكارك إلى فيديو سينمائي 4K</h2>
+      <p>
+        SYNAA Studio — محرر فيديو احترافي (Android). معاينة لحظية، مخطط زمني متعدد الطبقات،
+        إزالة ضوضاء، transitions سينمائية، text/shapes، تصدير 4K. يعمل без اتصال (بدون إنترنت)
+        للعرض والتحرير (التصدير/التحويل قد يحتاج اتصالاً).
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="synaa.apk" download="synaa-studio.apk">
+          ⬇️ تنزيل APK (Android)
+        </a>
+        <a class="btn btn-ghost" href="#install">طريقة التثبيت</a>
+      </div>
+      <div class="meta">
+        <span>📦 <b>synaa.apk</b></span>
+        <span>🤖 <b>Android 8.0+</b></span>
+        <span>📱 <b>ARM64 / ARMv7</b></span>
+        <span>⚖️ <b>~ 35 MB</b></span>
+      </div>
+    </section>
+
+    <h3 class="section-title">الميزات</h3>
+    <div class="features">
+      <div class="card"><div class="icon">🎬</div><h3>معاينة لحظية 4K</h3><p>Canvas rendering بـ 60fps، playhead يتابع الصوت/الفيديو (لا قفز/لا تقطيع).</p></div>
+      <div class="card"><div class="icon">⏱️</div><h3>مخطط زمني متعدد الطبقات</h3><p>Text / Shape / Overlay / Video / Audio — trim, split, snap ذكي.</p></div>
+      <div class="card"><div class="icon">✨</div><h3>Transitions سينمائية</h3><p>30+ انتقال: Glitch RGB, Light Leak, Dip to Black, Iris, Vortex, …</p></div>
+      <div class="card"><div class="icon">🎚️</div><h3>إزالة الضوضاء</h3><p>High-pass / Low-pass / Notch / Compressor / Gate + presets.</p></div>
+      <div class="card"><div class="icon">🎨</div><h3>تعديل ألوان</h3><p>Brightness, Contrast, Saturation, Hue, Sepia, Vignette, Film Grain, Blur.</p></div>
+      <div class="card"><div class="icon">📝</div><h3>نصوص وأشكال</h3><p>6 animations نصية + 10 أشكال (lower_third, badge, star, arrow, …).</p></div>
+      <div class="card"><div class="icon">📤</div><h3>تصدير</h3><p>MP4 / WebM / MOV / MKV / GIF — WebCodecs + MediaRecorder fallback.</p></div>
+      <div class="card"><div class="icon">☁️</div><h3>حفظ سحابي</h3><p>Firebase Auth + Firestore — مشاريع + وسائط (اختياري).</p></div>
+    </div>
+
+    <h3 class="section-title">متطلبات النظام</h3>
+    <div class="specs">
+      <table>
+        <tr><td>النظام</td><td>Android 8.0 (API 26) أو أحدث</td></tr>
+        <tr><td>المعالج</td><td>ARM64 (arm64-v8a) أو ARMv7 (armeabi-v7a)</td></tr>
+        <tr><td>الذاكرة</td><td>2 GB RAM كحد أدنى (4 GB مُوصى به)</td></tr>
+        <tr><td>التخزين</td><td>~ 35 MB للتطبيق + مساحة لملفات الوسائط</td></tr>
+        <tr><td>الاتصال</td><td>اختياري — لتحويل الصيغ/التصدير عبر الخادم</td></tr>
+        <tr><td>الملف</td><td><code>synaa.apk</code></td></tr>
+      </table>
+    </div>
+
+    <div class="install" id="install">
+      <h3 class="section-title" style="margin-top:0">طريقة التثبيت (Sideload)</h3>
+      <ol>
+        <li>نزّل ملف <code>synaa.apk</code> على هاتفك (زر التنزيل أعلاه).</li>
+        <li>افتح الإعدادات → الأمان → فعّل <b>تثبيت من مصادر غير معروفة</b> (أو "تثبيت تطبيقات غير معروفة" للتطبيق الذي ستستخدمه، مثلاً Chrome/Files).</li>
+        <li>افتح ملف <code>synaa.apk</code> من مدير الملفات واتبع التثبيت.</li>
+        <li>شغّل <b>SYNAA Studio</b> من قائمة التطبيقات.</li>
+      </ol>
+      <p style="color:var(--muted);font-size:12px;margin-top:10px">
+        ملاحظة: APK موقّع (debug) — للاستخدام الشخصي/التجريبي. للنشر على Google Play استخدم keystore إنتاج (release).
+      </p>
+    </div>
+
+    <footer>
+      © 2026 SYNAA Studio · Built with Next.js + Capacitor ·
+      <a href="synaa.apk" style="color:var(--amber);text-decoration:none">تنزيل APK</a>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,226 @@
+{
+  "entities": {
+    "UserPrivateProfile": {
+      "title": "UserPrivateProfile",
+      "description": "Private user account profile containing PII isolated under /users/{userId}/private/profile.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "displayName": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 200
+        },
+        "photoURL": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "providerId": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "email", "providerId", "createdAt", "updatedAt"]
+    },
+    "VideoProject": {
+      "title": "VideoProject",
+      "description": "User video editing project containing tracks, clips, transitions, grading, and audio cleanup state.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "aspectRatio": {
+          "type": "string",
+          "enum": ["16:9", "9:16", "1:1", "4:5", "21:9"],
+          "maxLength": 16
+        },
+        "duration": {
+          "type": "number"
+        },
+        "tracks": {
+          "type": "array",
+          "description": "Bounded list of up to 16 timeline tracks stored as native maps."
+        },
+        "clips": {
+          "type": "array",
+          "description": "Bounded list of up to 200 timeline clips stored as native maps."
+        },
+        "thumbnail": {
+          "type": "string",
+          "maxLength": 180000
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "ownerId", "name", "aspectRatio", "duration", "tracks", "clips", "createdAt", "updatedAt"]
+    },
+    "MediaAssetRecord": {
+      "title": "MediaAssetRecord",
+      "description": "Metadata and optional inline/chunked payload descriptor for media assets belonging to a project.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "projectId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["video", "image", "audio"],
+          "maxLength": 16
+        },
+        "originalExt": {
+          "type": "string",
+          "maxLength": 16
+        },
+        "mimeType": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "duration": {
+          "type": "number"
+        },
+        "width": {
+          "type": "number"
+        },
+        "height": {
+          "type": "number"
+        },
+        "thumbnail": {
+          "type": "string",
+          "maxLength": 200000
+        },
+        "waveform": {
+          "type": "array"
+        },
+        "inlineDataUrl": {
+          "type": "string",
+          "maxLength": 350000
+        },
+        "storageUrl": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "chunkCount": {
+          "type": "number"
+        },
+        "sizeBytes": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "ownerId", "projectId", "name", "kind", "originalExt", "mimeType", "duration", "width", "height", "chunkCount", "sizeBytes", "createdAt"]
+    },
+    "MediaDataChunk": {
+      "title": "MediaDataChunk",
+      "description": "Ordered base64 chunk of an uploaded media asset bounded under Firestore's 1MB document limit.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "projectId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "mediaId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "index": {
+          "type": "number"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 700000
+        }
+      },
+      "required": ["ownerId", "projectId", "mediaId", "index", "data"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/private/profile": {
+      "schema": { "$ref": "#/entities/UserPrivateProfile" },
+      "description": "Isolated private user profile with PII (email, displayName, photoURL)."
+    },
+    "/users/{userId}/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/VideoProject" },
+      "description": "Saved user video editing projects."
+    },
+    "/users/{userId}/projects/{projectId}/media/{mediaId}": {
+      "schema": { "$ref": "#/entities/MediaAssetRecord" },
+      "description": "Media asset metadata and inline/chunked descriptors attached to a project."
+    },
+    "/users/{userId}/projects/{projectId}/media/{mediaId}/chunks/{chunkId}": {
+      "schema": { "$ref": "#/entities/MediaDataChunk" },
+      "description": "Ordered media binary chunks stored safely under 1MB per document."
+    }
+  }
+}

@@ -1,0 +1,25 @@
+node_modules/
+.next/
+out/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Android build outputs (keep the source, ignore generated artifacts)
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/captures/
+*.iml
+.idea/
+
+# Temporary decomp / debug files
+sdklocate-*.txt
+apk-*.log
+cap-add*.log
+cap-install.log
+build-mobile.log
+npm-install.log
